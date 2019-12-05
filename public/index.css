@@ -3,17 +3,55 @@ body{
 	padding: 10px;
 }
 
+button, input{
+	border: solid 1px black;
+	background: transparent;
+}
+
+button {
+	color: #222;
+	background-color: #fafafa;
+}
+
+a{
+	font-weight: bold;
+	color: #222;
+}
+
 input.repo{
 	font-size: 28px;
 	font-weight: bold;
+	padding: 5px;
 }
 
 input.repo + button{
+	margin-left: -1px;
 	font-size: 28px;
 	font-weight: bold;
+	padding: 5px;
 }
 
 .notices{
 	text-align: center;
 	padding: 10px;
+}
+
+button.collapseToggle{
+	font-size: inherit;
+	padding: 0px;
+	margin-right: 10px;
+	height: 30px;
+	width: 30px;
+	line-height: 0;
+}
+
+.versionHeading{
+	cursor: pointer;
+}
+
+.author > *{
+	vertical-align: middle;
+}
+.author img{
+	padding-right: 10px;
 }

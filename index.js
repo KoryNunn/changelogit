@@ -120,10 +120,14 @@ function nextPage(){
         return;
     }
 
+    mutate.set(state, 'loading', true);
     loadVersions(state.nextPage, state.repo, function(error, result){
+        mutate.set(state, 'loading', false);
         if(error){
+            try { error = JSON.parse(error.message) } catch(error){}
             mutate.set(state, 'error', error);
         } else {
+            mutate.set(state, 'error', null);
             mutate.set(state, 'nextPage', result.nextPage);
             mutate.update(state, 'versions', result.versions);
             checkScroll();
@@ -131,17 +135,19 @@ function nextPage(){
     });
 }
 
-function updateRepo(){
+function loadRepo(){
     var repo = state.repo;
     if(!repo){
         return;
     }
-
-    mutate.remove(state, 'versions');
-    mutate.set(state, 'repo', repo);
     mutate.set(state, 'nextPage', `https://api.github.com/repos/${repo}/commits?per_page=100`);
 
     nextPage();
+}
+
+function updateRepo(){
+    mutate.remove(state, 'versions');
+    loadRepo();
 }
 
 function checkScroll(){
@@ -178,7 +184,10 @@ function renderCommit(){
     return fastn('div',
         fastn('h2', binding('commit.message', message => message.split('\n').filter(x => x)[0])),
         fastn('pre', binding('commit.message', message => message.split('\n').filter(x => x.trim()).slice(1).join('\n'))),
-        'Author: ', binding('author.login')
+        fastn('a', { class: 'author', href: binding('author.url') },
+            fastn('img', { height: 30, width: 30, src: binding('author.avatar_url') }),
+            binding('author.login')
+        )
     );
 }
 
@@ -192,9 +201,18 @@ function renderCommits(commitsBinding){
 }
 
 function renderVersion(){
-    return fastn('div',
-        fastn('h1', binding('version', version => `${version || 'Unreleased'} ${version ? ' - ' : ''}`), binding('date', renderDate)),
-        renderCommits(binding('relevantCommits|*'))
+    return fastn('div', { display: binding('version', 'relevantCommits', (version, relevantCommits) => version && relevantCommits.length) },
+        fastn('h1', { class: 'versionHeading' },
+            fastn('button', { class: 'collapseToggle' }, binding('collapsed', collapsed => collapsed ? '+' : '-')),
+            binding('version', version => `${version || 'Unreleased'} ${version ? ' - ' : ''}`),
+            binding('date', renderDate)
+        )
+        .on('click', (event, scope) => {
+            scope.set('collapsed', !scope.get('collapsed'));
+        }),
+        fastn('div', { display: binding('collapsed', collapsed => !collapsed) },
+            renderCommits(binding('relevantCommits|*'))
+        )
     );
 }
 
@@ -215,7 +233,8 @@ var ui = fastn('div',
     }),
     fastn('div', { class: 'notices' }, 
         fastn('h2', { display: binding('rateLimits.rate.remaining', remaining => !remaining) }, fastn.binding('rateLimits.rate|*', rate => rate && `Github API rate-limmited, limit released at ${new Date(rate.reset * 1000).toLocaleString()}`)),
-        fastn('h2', { display: binding('loading') }, 'Loading...')
+        fastn('h2', { display: binding('loading') }, 'Loading...'),
+        fastn('h2', { display: binding('error') }, 'Error: ', binding('error', error => error && error.message || error))
     ),
     fastn('button', { display: binding('nextPage', 'versions', 'loading', (nextPage, versions, loading) => nextPage && versions && !loading) }, 'Load more...').on('click', nextPage)
 );
@@ -227,4 +246,4 @@ window.addEventListener('load', () => document.body.appendChild(ui.element));
 window.addEventListener('hashchange', parseHash)
 window.addEventListener('scroll', checkScroll)
 parseHash();
-updateRepo();
+loadRepo();
