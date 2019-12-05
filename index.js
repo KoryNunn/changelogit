@@ -165,6 +165,10 @@ function setHash(){
 }
 
 function renderDate(dateString){
+    if(!dateString){
+        return '';
+    }
+
     var date = new Date(dateString);
 
     return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, 0)}-${date.getDate().toString().padStart(2, 0)}`
@@ -188,8 +192,8 @@ function renderCommits(commitsBinding){
 }
 
 function renderVersion(){
-    return fastn('div', { display: binding('version') },
-        fastn('h1', binding('version'), ' - ', binding('date', renderDate)),
+    return fastn('div',
+        fastn('h1', binding('version', version => `${version || 'Unreleased'} ${version ? ' - ' : ''}`), binding('date', renderDate)),
         renderCommits(binding('relevantCommits|*'))
     );
 }
