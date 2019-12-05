@@ -6,7 +6,7 @@ var semver = require('semver');
 var mutate = fastn.Model;
 var binding = fastn.binding;
 var state = {
-    repo: 'korynunn/scroll-into-view'
+    repo: 'korynunn/changelogit'
 };
 
 
