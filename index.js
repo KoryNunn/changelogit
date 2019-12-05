@@ -201,7 +201,7 @@ function renderCommits(commitsBinding){
 }
 
 function renderVersion(){
-    return fastn('div', { display: binding('version', 'relevantCommits', (version, relevantCommits) => version && relevantCommits.length) },
+    return fastn('div', { display: binding('version', 'relevantCommits', (version, relevantCommits) => version || relevantCommits.length) },
         fastn('h1', { class: 'versionHeading' },
             fastn('button', { class: 'collapseToggle' }, binding('collapsed', collapsed => collapsed ? '+' : '-')),
             binding('version', version => `${version || 'Unreleased'} ${version ? ' - ' : ''}`),
