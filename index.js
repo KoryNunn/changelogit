@@ -22,8 +22,8 @@ function relvantCommit(commit){
 
     if(
         message.length <= 1 ||
-        message.match(/Merge.*/) ||
-        message.match(/Update README.md/)
+        message.match(/^Merge.*/) ||
+        message.match(/^Update README.md/)
     ){
         return false;
     }
@@ -35,7 +35,7 @@ function parseCommitsToVersions(commits){
     var results = commits.reduce((results, commit) => {
         var lastVersion = results[results.length - 1];
         var message = commit.commit.message;
-        var versionMatch = message.match(/\d+\.\d+\.\d+/);
+        var versionMatch = message.match(/^\d+\.\d+\.\d+$/);
 
         if(versionMatch){
             lastVersion = createNewVersion();
