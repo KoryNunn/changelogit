@@ -225,6 +225,7 @@ var ui = fastn('div',
         event.preventDefault();
         setHash();
     }),
+    fastn('a', { href: binding('repo', repo => `https://www.github.com/${repo}`)}, 'View ', binding('repo'), ' on GitHub'),
     fastn('list', {
         items: binding('versions|*'),
         template: () => {
