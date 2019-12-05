@@ -182,7 +182,7 @@ function renderDate(dateString){
 
 function renderCommit(){
     return fastn('div',
-        fastn('h2', fastn('a', { href: binding('commit.html_url') }, binding('commit.message', message => message.split('\n').filter(x => x)[0]))),
+        fastn('h2', fastn('a', { href: binding('html_url') }, binding('commit.message', message => message.split('\n').filter(x => x)[0]))),
         fastn('pre', binding('commit.message', message => message.split('\n').filter(x => x.trim()).slice(1).join('\n'))),
         fastn('a', { class: 'author', href: binding('author.url') },
             fastn('img', { height: 30, width: 30, src: binding('author.avatar_url') }),
