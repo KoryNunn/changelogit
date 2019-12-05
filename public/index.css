@@ -1,0 +1,19 @@
+body{
+	font-family: Oxygen;
+	padding: 10px;
+}
+
+input.repo{
+	font-size: 28px;
+	font-weight: bold;
+}
+
+input.repo + button{
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.notices{
+	text-align: center;
+	padding: 10px;
+}
