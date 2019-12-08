@@ -5,8 +5,11 @@ var semver = require('semver');
 
 var mutate = fastn.Model;
 var binding = fastn.binding;
+var defaultVersionPattern = '/^\\d+\\.\\d+\\.\\d+$/';
+var bracedVersionPattern = '/v\\d+\\.\\d+\\.\\d+/';
 var state = {
-    repo: 'korynunn/changelogit'
+    repo: 'korynunn/changelogit',
+    versionPattern: defaultVersionPattern
 };
 
 
@@ -23,8 +26,8 @@ function relvantCommit(commit){
     if(
         message.length <= 1 ||
         message.match(/^Merge.*/) ||
-        message.match(/^Update README.md$/)
-    ){
+        message.match(/^Update README.md/)
+     ){
         return false;
     }
 
@@ -35,7 +38,7 @@ function parseCommitsToVersions(commits){
     var results = commits.reduce((results, commit) => {
         var lastVersion = results[results.length - 1];
         var message = commit.commit.message;
-        var versionMatch = message.match(/^\d+\.\d+\.\d+$/);
+        var versionMatch = message.match(new RegExp(state.versionPattern.slice(1,-1)));
 
         if(versionMatch){
             lastVersion = createNewVersion();
@@ -157,16 +160,31 @@ function checkScroll(){
 }
 
 function parseHash(){
-    var repo = window.location.hash.slice(1);
+    var hash = window.location.hash.slice(1);
+    var [repo, pattern] = hash.split(',');
+    var update;
 
     if(repo && repo !== state.repo){
         mutate.set(state, 'repo', repo);
+        update = true;
+    }
+    if(pattern && pattern !== state.versionPattern){
+        mutate.set(state, 'versionPattern', pattern);
+        update = true;
+    }
+
+    if(update){
         updateRepo();
     }
 }
 
 function setHash(){
-    window.location.hash = state.repo;
+    window.location.hash = [state.repo, state.versionPattern].join(',');
+}
+
+function setPattern(pattern){
+    mutate.set(state, 'versionPattern', pattern);
+    setHash();
     updateRepo();
 }
 
@@ -182,7 +200,7 @@ function renderDate(dateString){
 
 function renderCommit(){
     return fastn('div',
-        fastn('h2', binding('commit.message', message => message.split('\n').filter(x => x)[0])),
+        fastn('h2', fastn('a', { href: binding('html_url') }, binding('commit.message', message => message.split('\n').filter(x => x)[0]))),
         fastn('pre', binding('commit.message', message => message.split('\n').filter(x => x.trim()).slice(1).join('\n'))),
         fastn('a', { class: 'author', href: binding('author.url') },
             fastn('img', { height: 30, width: 30, src: binding('author.avatar_url') }),
@@ -218,13 +236,28 @@ function renderVersion(){
 
 var ui = fastn('div',
     fastn('h1', 'Github "changelog" viewer'),
-    fastn('form', 
-        fastn('input', { class: 'repo', value: binding('repo'), placeholder: 'user/repo', oninput: 'value:value' }),
-        fastn('button', 'Load')
+    fastn('form',  { class: 'repoForm' },
+        fastn('div', { class: 'field repo' },
+            fastn('label', 'Repo'),
+            fastn('input', { class: 'repo', value: binding('repo'), placeholder: 'user/repo', oninput: 'value:value' })
+        ),
+        fastn('div', { class: 'field versionPattern' },
+            fastn('label', 'Version pattern'),
+            fastn('input', { class: 'pattern', value: binding('versionPattern'), placeholder: defaultVersionPattern, oninput: 'value:value' }),
+            fastn('button', { type: 'button' }, '1.2.3')
+            .on('click', () => setPattern(defaultVersionPattern)),
+            fastn('button', { type: 'button' }, '(v1.2.3)')
+            .on('click', () => setPattern(bracedVersionPattern))
+        ),
+        fastn('div', { class: 'actions' },
+            fastn('button', 'Load')
+        )
     ).on('submit', (event, scope) => {
         event.preventDefault();
         setHash();
+        updateRepo();
     }),
+    fastn('a', { href: binding('repo', repo => `https://www.github.com/${repo}`)}, 'View ', binding('repo'), ' on GitHub'),
     fastn('list', {
         items: binding('versions|*'),
         template: () => {

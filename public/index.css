@@ -18,13 +18,47 @@ a{
 	color: #222;
 }
 
-input.repo{
-	font-size: 28px;
-	font-weight: bold;
-	padding: 5px;
+form{
+	max-width: 1000px;
+	padding: 10px;
+	margin-bottom: 10px;
+	border: solid 1px black;
 }
 
-input.repo + button{
+form > .field{
+	display: inline-block;
+	min-width: 200px;
+	display: flex;
+	flex-flow: row wrap;
+	align-content: stretch;
+	margin-bottom: 10px;
+	align-items: baseline;
+	justify-content: flex-end;
+}
+form > .field input{
+	flex: 1 1 auto;
+	min-width: 0;
+}
+form > .field button{
+	align-self: flex-end;
+}
+form > .field label{
+	margin-left: 0;
+	margin-right: auto;
+}
+form > .actions{
+	display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+form label{
+	display: inline-block;
+	min-width: 200px;
+	font-size: 1.5em
+}
+
+.repoForm button,
+.repoForm input{
 	margin-left: -1px;
 	font-size: 28px;
 	font-weight: bold;
