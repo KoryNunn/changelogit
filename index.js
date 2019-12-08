@@ -164,6 +164,9 @@ function parseHash(){
     var [repo, pattern] = hash.split(',');
     var update;
 
+    repo = repo && decodeURIComponent(repo);
+    pattern = pattern && decodeURIComponent(pattern);
+
     if(repo && repo !== state.repo){
         mutate.set(state, 'repo', repo);
         update = true;
